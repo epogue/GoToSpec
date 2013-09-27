@@ -76,7 +76,7 @@ class GoToSpecCommand(sublime_plugin.WindowCommand):
 	            yield str.capitalize
 
 	    c = camelcase()
-	    return "".join(c.next()(x) if x else '_' for x in value.split("_"))
+	    return "".join(next(c)(x) if x else '_' for x in value.split("_"))
 
 	def try_to_append(self):
 		view = self.window.active_view()
@@ -85,21 +85,12 @@ class GoToSpecCommand(sublime_plugin.WindowCommand):
 			sublime.set_timeout(self.try_to_append, 50)
 		else:
 			file_name  = os.path.basename(view.file_name())
-			spec_class = self.underscore_to_class(file_name.encode('utf8').replace("_spec.rb", ""))
+			spec_class = self.underscore_to_class(file_name.replace("_spec.rb", ""))
 
-			edit = view.begin_edit()
-			total = view.insert(edit, 0, """require 'spec_helper'
-
-describe %s do
-  
-end
-""" % spec_class)
-			view.sel().clear()
-			view.sel().add(sublime.Region(total - 5))
-			view.end_edit(edit)
+			view.run_command('populate_spec_file', { 'spec_class': spec_class })
 
 	def on_done(self, option):
-		if option == 0:
+		if option < 1:
 			return
 		
 		self.open_right(self.subject_file)
@@ -139,9 +130,16 @@ end
 					self.subject_file  = subject_file
 					self.proposed_spec = self.spec_for(folder, dirname, filename, extension)
 					self.pretty_name   = self.spec_for("", dirname, filename, extension)
-					items = ["Do nothing", ["Create a new spec file", self.pretty_name]]
+					items = [["Do nothing", ""], ["Create a new spec file", self.pretty_name]]
 					self.window.show_quick_panel(items, self.on_done)
 
+class PopulateSpecFileCommand(sublime_plugin.TextCommand):
+	def run(self, edit, spec_class):
+		total = self.view.insert(edit, 0, """require 'spec_helper'
 
-
-		
+describe %s do
+  
+end
+""" % spec_class)
+		self.view.sel().clear()
+		self.view.sel().add(sublime.Region(total - 5))
