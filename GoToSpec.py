@@ -116,15 +116,15 @@ class GoToSpecCommand(sublime_plugin.WindowCommand):
 			subject_file = self.find_test_subject(folder, dirname, filename, extension)
 
 			if spec_file and subject_file:
-				self.open_left(spec_file)
-				self.open_right(subject_file)
+				self.open_left(subject_file)
+				self.open_right(spec_file)
 		else:
 			spec_file    = self.find_spec(folder, dirname, filename, extension)
 			subject_file = current_folder + current_file
 
 			if spec_file and subject_file:
-				self.open_right(subject_file)
-				self.open_left(spec_file)
+				self.open_left(subject_file)
+				self.open_right(spec_file)
 			else:
 				if subject_file:
 					self.subject_file  = subject_file
