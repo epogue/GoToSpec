@@ -93,8 +93,8 @@ class GoToSpecCommand(sublime_plugin.WindowCommand):
 		if option < 1:
 			return
 		
-		self.open_right(self.proposed_spec)
 		self.open_left(self.subject_file)
+		self.open_right(self.proposed_spec)
 		self.try_to_append()
 
 	def run(self):
